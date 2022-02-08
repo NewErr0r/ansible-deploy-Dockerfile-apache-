@@ -1,0 +1,30 @@
+---
+- name: Setting web-servers
+  hosts: web
+  become: True
+  gather_facts: no 
+
+  tasks: 
+    - name: Creating directory "docker-apache"
+      file: 
+        state: directory
+        path: /docker-apache
+
+    - name: Copy "Dockerfile" in "docker-apache" dir
+      ansible.builtin.copy:
+        src: /etc/ansible/my_project2/Dockerfile
+        dest: /docker-apache
+
+    - name: Go docker build
+      command: bash -c "docker build -t apache:02 /docker-apache"
+
+    - name: docker run
+      command: bash -c "docker run -d -p 1240:80 apache:02"
+
+    - name: docker ps
+      command: bash -c "docker ps"
+      register: output
+
+    - name: show output 
+      debug: 
+        var: output 
